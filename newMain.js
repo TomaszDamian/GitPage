@@ -119,6 +119,7 @@ class Player{
         this.moveDown = false;
     }
     draw(){
+        //same as the Circle draw
         painter.beginPath();
         painter.lineWidth = 3;
         painter.fillStyle = this.color;
@@ -263,7 +264,9 @@ let totalTime = 0;
 
 let SecondPassed = function(){
     //called by a setInterval which calls something every x ms, 1000 ms in this case
+    //time to spawn always gets reset when a new ball is placed
     timeToSpawn ++;
+    //if the User is still alive then you should update the timer that is visable to the side
     if(User.life > 0){
         totalTime ++;
         document.getElementById("ScoreContainer").innerHTML = "Time survived: " + totalTime;
@@ -292,29 +295,34 @@ function animation() {
     //balls have to be above a ceratin speed in order for this to work properly
     if(User.life > 0 && !Victory){
         if(height/ClosingZone <= 60){
+            //if the line hits the 60px mark you win the game
             Victory = true;
         }
-        console.log(height/ClosingZone);
         painter.fillStyle = 'rgba(255,255,255,0.25)';
         painter.fillRect(0,0,width,height);
         
+        //drawing the closing line that closes the player off
+        //so he can hava a visual representation of where he can go or not
         painter.rect(0,height/ClosingZone,width,3);
         painter.fillStyle = 'red'
         painter.fill();
         
         if(timeToSpawn >= 3 ){
+            //spawns a new ball every 3 seconds and makes the closed off zone larger
             timeToSpawn = 0;
             ClosingZone += 0.2;
             CreateNewBall();
         }
         //calling the function with each ball
         for(let currentBall of balls) {
+            //if the current ball's veriable is exists then it should be drawn otherwise not
             if(currentBall.exists) {
             currentBall.draw();
             currentBall.update();
             currentBall.collisionDetect();
             }
         }
+        //no need to do the same with the user as there is only one user
         User.draw();
         User.setControls();
         User.BorderCollision();
@@ -322,14 +330,18 @@ function animation() {
     }
 
     else{
+        //clearing the canvas
         ClearCanvas();
         if(Victory){
+            //drawing victory screen
             DrawVictory();
         }
         else{
+            //drawing loss screen
             DrawGameOver();
         }
         window.onkeypress = function(e){
+            //if the user is dead and you press R then you restart the game
             if(e.keyCode == 114 && User.life <= 0){
                 //resets life back to default and starts the game again
                 User.life = 3;
@@ -355,6 +367,8 @@ function animation() {
             }
         }
     }
+    //requesting an animation frame is better than a for loop as it doesn't tell the computer to do it right away but rather finish what it's doing and then do this
+    //mostly reduces lag
     requestAnimationFrame(animation);
 }
 animation();
