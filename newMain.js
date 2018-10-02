@@ -269,7 +269,7 @@ let totalTime = 0;
 const counter = () => {
     const interval = setInterval(() => {
         //cancels the action in the timed function
-        if(User.life === 0){ 
+        if(User.life === 0 || Victory){ 
             CounterOff = true;
             clearInterval(interval); 
         }
