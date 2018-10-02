@@ -257,6 +257,7 @@ function CreateNewBall(){
     balls.push(ball);
 }
 
+let CounterOff = false;
 let Victory = false;
 let ClosingZone = 1;
 let timeToSpawn = 0;
@@ -268,7 +269,10 @@ let totalTime = 0;
 const counter = () => {
     const interval = setInterval(() => {
         //cancels the action in the timed function
-        if(User.life === 0){ clearInterval(interval) }
+        if(User.life === 0){ 
+            CounterOff = true;
+            clearInterval(interval); 
+        }
         //else what needs to happen happens
         timeToSpawn++;
         totalTime++;
@@ -367,6 +371,8 @@ function animation() {
 
                 //reset closing zone
                 ClosingZone = 1;
+
+                if(CounterOff){ counter(); }
             }
         }
     }
