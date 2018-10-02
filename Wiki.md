@@ -20,4 +20,7 @@ const counterino = () => {
 this is code to fix the whole timer thing but I want to do my best and find my own solution
 
 I pretty much mimiced the code but I also re wrote it instead of just copying it just to understand what is going on
+
 A weird bug popped up where the counter would just stop counting gonna do my best to solve it
+issue fixed, it just quit the setInterval every time I died and waited till the interval did what it was supposed to do
+simple fix with a variable and one if statement in the reset part of the code.
