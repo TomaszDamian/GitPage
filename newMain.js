@@ -262,18 +262,21 @@ let ClosingZone = 1;
 let timeToSpawn = 0;
 let totalTime = 0;
 
-let SecondPassed = function(){
-    //called by a setInterval which calls something every x ms, 1000 ms in this case
-    //time to spawn always gets reset when a new ball is placed
-    timeToSpawn ++;
-    //if the User is still alive then you should update the timer that is visable to the side
-    if(User.life > 0){
-        totalTime ++;
+//arrow functions used here
+//seems not very tidy but I'll live
+//there is no real differenece other than the fact it's shorter
+const counter = () => {
+    const interval = setInterval(() => {
+        //cancels the action in the timed function
+        if(User.life === 0){ clearInterval(interval) }
+        //else what needs to happen happens
+        timeToSpawn++;
+        totalTime++;
         document.getElementById("ScoreContainer").innerHTML = "Time survived: " + totalTime;
-    }
+    },1000)
 }
 
-setInterval(SecondPassed,1000);
+counter();
 
 let balls = [];
 
@@ -342,7 +345,7 @@ function animation() {
         }
         window.onkeypress = function(e){
             //if the user is dead and you press R then you restart the game
-            if(e.keyCode == 114 && User.life <= 0){
+            if(e.keyCode == 114 && User.life <= 0 || Victory){
                 //resets life back to default and starts the game again
                 User.life = 3;
                 //visable counter restet
