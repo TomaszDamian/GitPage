@@ -1,23 +1,33 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Bouncing balls</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-
-    <body>
-        <div class="GameCanvasDiv">
-            <canvas></canvas>
-            <p>how to play: <br>
-                <b>w, a, s, d to move<br>
-                use R to restart<br><br><br>
-                <span id="ScoreContainer">Time survived: 0</span><br>
-                <span id="healthContainer">lives left: 3</span>
-                </b>
-                
-            </p>
-        </div>
-        <script src="newMain.js"></script>
-    </body>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.css">
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+    .margin-5{
+        margin: 5px;
+    }
+    html, .is-flex{
+        margin: 0;
+        height: 100%;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;    
+    }
+    #Picturediv{
+        width: 85%;
+        display: flex;
+        flex-flow: row wrap;
+    }
+    </style>
+</head>
+<body>
+    <div class="is-flex">
+        <div id="Tagdiv"></div>
+        <div id="Searchbar"></div>
+        <div id="Picturediv"></div>
+    </div>
+    <script src="Main.js"></script>
+</body>
 </html>
