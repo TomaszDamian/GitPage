@@ -14,16 +14,20 @@ let pictures = [];
 */ 
 function SearchNames(){
 	let AllImages = document.querySelectorAll("img");
-	let SelectedTag = document.querySelector(".is-danger");
+	let SelectedTag = document.querySelector(".is-danger").textContent.toLowerCase();
 	for(let image of AllImages){
-		if(this.value === "" && SelectedTag.textContent === "Show All"){
+		if(this.value === "" && SelectedTag === "show all"){
 			image.hidden = false;
 		}
-		else if(this.value === "" && image.dataset.tags.includes(SelectedTag.textContent)){
+		else if(this.value === "" && image.dataset.tags.includes(SelectedTag)){
 			image.hidden = false;
 		}
 		else{
-			if(image.alt.includes(this.value) && image.dataset.tags.includes(SelectedTag.textContent)){
+			if(image.alt.includes(this.value) && image.dataset.tags.includes(SelectedTag)){
+				image.hidden = false;
+			}
+			else if(image.alt.includes(this.value) && SelectedTag === "show all"){
+				
 				image.hidden = false;
 			}
 			else{
@@ -54,20 +58,20 @@ function ButtonFilter(){
 	//basically a toggle function explained above
 	MakeActiveButton(this.textContent);
 	let PictureContainer = document.querySelectorAll("img");
-	let SearchBar = document.querySelector("input");
+	let SearchBarValue = document.querySelector("input").value.toLowerCase();
 	//selects one pic and then goes through every single one of them
     for(let onePic of PictureContainer){
 		//if the button textContent is Show All then it shows all
 		//added in later is filter by both name and tag which is inputted through the searchbar
-		if(this.textContent === "Show All" && SearchBar.value === ""){
+		if(this.textContent === "show all" && SearchBarValue === ""){
 			onePic.hidden = false;
 		}
-		else if(this.textContent === "Show All" && onePic.alt.includes(SearchBar.value)){
+		else if(this.textContent === "show all" && onePic.alt.includes(SearchBarValue)){
 			onePic.hidden = false;
 		}
 		else{
 			//else if the data-tags include the textContent of the button then you don't hide it
-			if(onePic.dataset.tags.includes(this.textContent) === true && onePic.alt.includes(SearchBar.value) === true){
+			if(onePic.dataset.tags.includes(this.textContent) === true && onePic.alt.includes(SearchBarValue) === true){
 				onePic.hidden = false;
 			}
 			else{
@@ -90,7 +94,7 @@ class Picture{
 new Picture("bunny", "http://javascriptbook.com/code/c12/img/p1.jpg", "Animators", "Illustrators");
 new Picture("sea road", "http://javascriptbook.com/code/c12/img/p2.jpg", "Photographer", "Filmmakers");
 new Picture("deer", "http://javascriptbook.com/code/c12/img/p3.jpg", "Photographer", "Filmmakers");
-new Picture("now york map", "http://javascriptbook.com/code/c12/img/p4.jpg", "Designer");
+new Picture("new york map", "http://javascriptbook.com/code/c12/img/p4.jpg", "Designer");
 new Picture("trumpet", "http://javascriptbook.com/code/c12/img/p5.jpg", "Photographer", "Filmmakers");
 new Picture("logo", "http://javascriptbook.com/code/c12/img/p6.jpg", "Illustrators", "Designer");
 new Picture("bike", "http://javascriptbook.com/code/c12/img/p7.jpg", "Photographer");
@@ -102,27 +106,28 @@ for (let imageData of pictures){
 	//need something to hold the tags together before I add them to the image
 	let TagsForThisImage = "";
 	//created the image and the src and name have been assigned
-    let createdImage = new Image(300,150);
+	let createdImage = new Image(300,150);
+	imageData.name = imageData.name.toLowerCase();
     createdImage.src = imageData.link;
 	createdImage.alt = imageData.name;
 	//since the tags variable is an array I for ... of it to get the value and add them to the TagsForThisImage string
     for (let tag of imageData.tags){
         tag = tag.toLowerCase();
         TagsForThisImage = TagsForThisImage + tag + " ";
-		createdImage.dataset.tags = TagsForThisImage
+		createdImage.dataset.tags = TagsForThisImage;
         AllTags.push(tag);
 	}
 	//added padding so they aren't squished together
 	createdImage.style.padding = "5px";
 	//appended into a specific div
-    document.getElementById("Picturediv").appendChild(createdImage);
+	document.getElementById("Picturediv").appendChild(createdImage);
 }
 
 
 //make a array of tags that does not have repeats
 let uniqueTags = [...new Set(AllTags)];
 //need one button to show all the pictures
-uniqueTags.unshift("Show All");
+uniqueTags.unshift("show all");
 
 for(let tag of uniqueTags){
 	//creates the element adds the text to it, added a event listener and appended into specific div
