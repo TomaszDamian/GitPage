@@ -1,3 +1,4 @@
+//documentation: https://github.com/TomaszDamian/JavascriptBasic/blob/master/assignment%206/wiki.md
 let pictures = [];
 let AllTags = [];
 
