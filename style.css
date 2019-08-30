@@ -1,0 +1,7 @@
+.Move{
+    height: 50px;
+    width: 100px;
+    stroke: red;
+    stroke-width: 6px;
+    fill: blue;
+}
