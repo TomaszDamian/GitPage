@@ -1,3 +1,6 @@
+Body{
+    display: inline-flex;
+}
 .Top, .Bottom{
     width: 99px;
     height: 49px;
