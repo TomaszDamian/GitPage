@@ -1,7 +1,29 @@
-.Move{
-    height: 50px;
+.Top, .Bottom{
+    width: 99px;
+    height: 49px;
+    border-style: solid;
+    border-color: #333333;
+    border-width: 0.5px;
+}
+.Top{
+    background: black;
+}
+.Logo{
+    text-align: center;
+    display: inline-block;
+    margin-top: 40px;
+    margin-bottom: 40px;
     width: 100px;
-    stroke: red;
-    stroke-width: 6px;
-    fill: blue;
+    height: 35px;
+    background: crimson;
+    font-size: 35px;
+    color: aqua;
+}
+.container{
+    width: 300px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
