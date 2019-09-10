@@ -1,11 +1,14 @@
+
 anime({
     targets: '.Top',
+    //keyframes segja til um hvað á að gera og í hvaða röð
     keyframes: [
         {translateX: 83, translateY: 90, rotate: 90, background: '#0000ff'},
         {translateX: 0, translateY:166, rotate: 180, background: '#000000'},
         {translateX: -83, translateY: 90, rotate: 270, background: '#ff0000'},
         {translateX: 0, translateY: 0, rotate:360, background: '#000000'}
     ],
+    //duration segir hversu hratt allt á að gerast og loop hvort það á að endurtakast
     duration:6500,
     loop: true
 });
@@ -32,24 +35,17 @@ anime({
     loop: true
 })
 
-//100,100 150,25 150,75 200,0
 anime({
     targets: '.Morph',
+    //virkar eigninlega eins og keyframes, breytir gildinu þangað til það er orðið eins og það segir að neðan
     points: [
-        { value: '0,40 40,40 40,80 80,80 80,120 120,120 120,160' },
-        { value: '100,100 150,25 150,75 200,0' },
-        { value: '0,40 40,40 40,80 80,80 80,120 120,120 120,160' }
+        { value: '0,0 200,200 100,45 100,155 0,0' },
+        { value: '0,50 200,50 200,150 0,150 0,50' },
+        { value: '0,200 200,0 100,155, 100,45 0,200' },
+        { value: '0,50 200,50 200,150 0,150 0,50' },
     ],
-    duration: 2500,
+    //easing er bara hvernig animationið á að líta út
+    easing:'linear',
+    duration: 8500,
     loop: true
 });
-
-function GetRandomHex(){
-    let Values = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
-    let string = '';
-    for (let i = 0; i < 6; i++) {
-        let num = Math.floor(Math.random() * 16);
-        string = string + Values[num];
-    }
-    return string;
-}
