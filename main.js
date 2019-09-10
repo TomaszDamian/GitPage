@@ -1,77 +1,55 @@
-var itemSearched;
+anime({
+    targets: '.Top',
+    keyframes: [
+        {translateX: 83, translateY: 90, rotate: 90, background: '#0000ff'},
+        {translateX: 0, translateY:166, rotate: 180, background: '#000000'},
+        {translateX: -83, translateY: 90, rotate: 270, background: '#ff0000'},
+        {translateX: 0, translateY: 0, rotate:360, background: '#000000'}
+    ],
+    duration:6500,
+    loop: true
+});
 
-$(document).ready(function(){
-		$("button").click(function(){
-			$("#Objects").html("");
-		$("#Objects").append("<img src='https://media.giphy.com/media/u3ixOBgotIfMQ/giphy.gif'/>")
-			$(".btn-danger").html("Search")
-			input = $("input").val();
-			if(input != ""){
-				itemSearched = input
-			}
-			$("input").val("");
-			$("#Objects").removeClass("center")
-			$.ajax({
-			  	url: "https://www.giantbomb.com/api/search/",
-			  	type: "GET",
-			  	data: {
-			  		'api_key': "815b269b7f9d19b9e7746568dd04cac2d0241af5", 
-			  		'query': itemSearched,
-			  		'format': "jsonp",
-			  		"field_list" : ["name","image","description"],
-			  		'json_callback': "gamer"
-			  	},
-			  	//use thumb_url as the picture
-			  	dataType: "jsonp",
-			  	success: function(response) {		  		
-			  	},
-			  	error: function(xhr,status,error){
-				}
+anime({
+    targets: '.Bottom',
+    keyframes: [
+        {translateX: -83, translateY: -90, rotate: 90, background: '#ff0000'},
+        {translateX: 0, translateY: -180, rotate: 180, background: '#ffffff'},
+        {translateX: 83, translateY: -90, rotate: 270, background: '#0000ff'},
+        {translateX: 0, translateY: 0, rotate: 360, background: '#ffffff'}
+    ],
+    duration:6500,
+    loop: true
+});
 
-			});
-		});
-	});
-function gamer(response){
-	$("#Objects").html("");
-	if(response["number_of_total_results"] == 0 || response == [])
-		{
-			$("#Objects").append("<h1 style='text-align:center;'>The item you searched for doesn't exist in the GiantBomb API</h1>");
-		};
-	for (x in response["results"])
-	{
-		if (response["results"][x]["image"] == null || response["results"][x]["name"] == null)
-		{
+anime({
+    targets:'.Logo',
+    keyframes:[
+        {borderRadius: '50%'},
+        {borderRadius: '0%'}
+    ],
+    duration:3250,
+    loop: true
+})
 
-		}
-		else{
-			var $div = $("<div class='OneGame'></div>");
-			$div.append("<h3><img class='image' src='" + response["results"][x]["image"]["thumb_url"] + "'/>" + response["results"][x]["name"] + "</h3>" + "<h1 class='GameID'>"+response["results"][x]["id"] + "</h1>");
-			$("#Objects").append($div);
-		};
-	};
-	$(".OneGame").click(function(){
-		$(".btn-danger").html("Search/Back")
-		$("#Objects").addClass("center");
-		$(".ButtonBack").css("display","inline-block");
-		var clicked = $(this).find("h1").text();
-		for(y in response["results"])
-			if(response["results"][y]["id"] == clicked)
-			{
-				$("#Objects").html("");
-				//console.log(response["results"][y]);
-				if (response["results"][y]["description"] == null || response["results"][y]["description"] == "")
-				{
-					$("#Objects").html("<h1>there is no description for this item </h1>")
-				}
-				else {
-					$("#Objects").html(response["results"][y]["description"])
-					return false;
-				}
-			}
-		//console.log(response["results"][clicked]["description"])
-		});
+//100,100 150,25 150,75 200,0
+anime({
+    targets: '.Morph',
+    points: [
+        { value: '0,40 40,40 40,80 80,80 80,120 120,120 120,160' },
+        { value: '100,100 150,25 150,75 200,0' },
+        { value: '0,40 40,40 40,80 80,80 80,120 120,120 120,160' }
+    ],
+    duration: 2500,
+    loop: true
+});
+
+function GetRandomHex(){
+    let Values = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+    let string = '';
+    for (let i = 0; i < 6; i++) {
+        let num = Math.floor(Math.random() * 16);
+        string = string + Values[num];
+    }
+    return string;
 }
-/*$(document).ready(function(){
-
-});*/
-	

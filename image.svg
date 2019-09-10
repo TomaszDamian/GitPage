@@ -1,0 +1,11 @@
+<svg version="1.1"
+	baseProfile="full"
+	width="300px" height="300px"
+	xmlns="http://www.w3.org/2000/svg">
+
+	<path d="M 0 150 Q 150 0 300 150 M 300 150 L 300 300 L 0 300 L 0 150 M 0 150 Q 150 250 300 150" stroke="black" fill="transparent"/>
+	<path d="M 50 150 Q 150 50 250 150 M 250 150 Q 150 200 50 150" stroke="crimson" fill="black"/>
+	<path d="M 0 250 C 55 190, 95 200, 150 250 S 235 290 300 250 L 0 250" stroke="black" fill="transparent"/>
+	<text x="150" y="150" font-size="35" text-anchor="middle" fill="aqua"> Hella </text>
+
+</svg>
