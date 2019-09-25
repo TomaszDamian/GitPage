@@ -112,6 +112,7 @@ function initBuffers(gl){
     gl.bufferData(gl.ARRAY_BUFFER,
         new Float32Array(positions),
         gl.STATIC_DRAW);
+
     return{
         position: positionBuffer,
     };
@@ -165,7 +166,7 @@ function drawScene(gl, programInfo, buffers){
             stride,
             offset
         );
-        gl.enableVertexAttribArray(programInfo.attribLocations,vertexPosition);
+        gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
     }
 
     //segir webgl að nota programið þegar það er að teikna.
