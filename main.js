@@ -1,7 +1,10 @@
+var cubeRotation = 0.0;
+
 main();
 function main(){
     const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext("webgl");
+
     //það sem er verið að gera hér er að initializa webgl virkni á canvasinn
 
     //getur ekki haldið áfram ef browserinn supportar ekki WebGL
@@ -37,9 +40,9 @@ function main(){
         varying lowp vec4 vColor;
 
         void main(){
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+            gl_FragColor = vColor;
         }
-    `
+    `;
 
     //þetta er til þess að kalla á föllinn og compila öllum shaderum
     const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
@@ -59,20 +62,40 @@ function main(){
     //hér er rútínan kölluð á yfir því sem ég er að fara teikna
     const buffers = initBuffers(gl);
 
-        //teikna senu
-    drawScene(gl, programInfo, buffers);
+    var then = 0;
+
+    function render(now){
+        now *= 0.001        //convertar yfir í sekúndur
+        const deltaTime = now - then;
+        then = now;
+
+        drawScene(gl, programInfo, buffers, deltaTime);
+
+        requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
 }
 
 function initBuffers(gl){
     //búa til buffer fyrir kassan sem ég er að fara búa til.
     //þetta að neðan setur mismunandi lit á kassann og bindir hann við buffer.
-    
-    const colors = [
-        1.0,  1.0,  1.0,  1.0,    // hvítur
-        1.0,  0.0,  0.0,  1.0,    // rauður
-        0.0,  1.0,  0.0,  1.0,    // grænn
-        0.0,  0.0,  1.0,  1.0,    // blár
+    const faceColors = [
+        [1.0,  1.0,  1.0,  1.0],    // Front: white
+        [1.0,  0.0,  0.0,  1.0],    // Back: red
+        [0.0,  1.0,  0.0,  1.0],    // Top: green
+        [0.0,  0.0,  1.0,  1.0],    // Bottom: blue
+        [1.0,  1.0,  0.0,  1.0],    // Right: yellow
+        [1.0,  0.0,  1.0,  1.0],    // Left: purple
     ];
+
+    var colors = [];
+    
+    for (let j = 0; j < faceColors.length; j++) {
+        const c = faceColors[j];
+        //endurtaka 4 sinnum fyrir hverja hlið á teningnum
+        colors = colors.concat(c, c, c, c,)
+    }
 
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -84,23 +107,72 @@ function initBuffers(gl){
 
     //búa til array með púnktum þar sem kassinn á að ver á  
     const positions = [
-        -1.0,  1.0,
-         1.0,  1.0,
-        -1.0, -1.0,
-         1.0, -1.0,
+        // Front 
+        -1.0, -1.0,  1.0,
+        1.0, -1.0,  1.0,
+        1.0,  1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        
+        // Back 
+        -1.0, -1.0, -1.0,
+        -1.0,  1.0, -1.0,
+        1.0,  1.0, -1.0,
+        1.0, -1.0, -1.0,
+        
+        // Top 
+        -1.0,  1.0, -1.0,
+        -1.0,  1.0,  1.0,
+        1.0,  1.0,  1.0,
+        1.0,  1.0, -1.0,
+        
+        // Bottom 
+        -1.0, -1.0, -1.0,
+        1.0, -1.0, -1.0,
+        1.0, -1.0,  1.0,
+        -1.0, -1.0,  1.0,
+        
+        // Right 
+        1.0, -1.0, -1.0,
+        1.0,  1.0, -1.0,
+        1.0,  1.0,  1.0,
+        1.0, -1.0,  1.0,
+        
+        // Left 
+        -1.0, -1.0, -1.0,
+        -1.0, -1.0,  1.0,
+        -1.0,  1.0,  1.0,
+        -1.0,  1.0, -1.0,
     ];
     //svo er hleypt þessu array í gegnum Float32Array og yfir á canvasið þar sem bufferinn er svo fylltur.
     gl.bufferData(gl.ARRAY_BUFFER,
         new Float32Array(positions),
         gl.STATIC_DRAW);
 
+
+    const indexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    //indices er basically það að skipta hverja hlið í þríhyrninga sem er léttasta formið til að búa til
+    const indices = [
+        0,  1,  2,      0,  2,  3,    // front
+        4,  5,  6,      4,  6,  7,    // back
+        8,  9,  10,     8,  10, 11,   // top
+        12, 13, 14,     12, 14, 15,   // bottom
+        16, 17, 18,     16, 18, 19,   // right
+        20, 21, 22,     20, 22, 23,   // left
+    ];
+
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+        new Uint16Array(indices),
+        gl.STATIC_DRAW);
+
     return{
         position: positionBuffer,
         color: colorBuffer,
+        indices: indexBuffer,
     };
 }
 
-function drawScene(gl, programInfo, buffers){
+function drawScene(gl, programInfo, buffers, deltaTime){
     gl.clearColor(0.0, 0.0, 0.0, 1.0,);     //gerir allt alveg svart
     gl.clearDepth(1.0);                     //hreinsar allt
     gl.enable(gl.DEPTH_TEST);               //enablar deapth testing
@@ -129,9 +201,21 @@ function drawScene(gl, programInfo, buffers){
                    modelViewMatrix,         //matrix til þess að þýða.
                    [-0.0, 0.0, -6.0]);      //valuið sem þarf að þýða í.
 
+    mat4.rotate(modelViewMatrix,        //destination
+        modelViewMatrix,                //matrix til að snúa
+        cubeRotation,                 //hversu mikið það á að snúast í radíunum
+        [0,0,1]                         //um hvaða ás hluturinn á að snúast
+    );
+    //þessi að ofan snýr í kringum z-ás og að neðan um x-ás.
+    mat4.rotate(modelViewMatrix,
+        modelViewMatrix,
+        cubeRotation * .7,
+        [0,1,0]
+    );
+
     //þarf að segja hvernig WebGL á að taka út positionið og buffera því inn í vertexPosition attributið
     {
-        const numComponents = 2;        // taka út 2 value í hvert skipti sem það er keyrt
+        const numComponents = 3;        // taka út 3 value í hvert skipti sem það er keyrt
         const type = gl.FLOAT;          //gögnin eru í 32 bita float formi í buffernum
         const normalize = false;        //ekki normaliza
         const stride = 0;               //hversu marga bytes á að taka út úr valuenum
@@ -168,6 +252,9 @@ function drawScene(gl, programInfo, buffers){
         gl.enableVertexAttribArray(
             programInfo.attribLocations.vertexColor);
     }
+    //segir webgl hvaða indice að nota til þess að indexa vertices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+
     //segir webgl að nota programið þegar það er að teikna.
     gl.useProgram(programInfo.program);
 
@@ -183,10 +270,14 @@ function drawScene(gl, programInfo, buffers){
         modelViewMatrix
     );
     {
+        const vertexCount = 36;
+        const type = gl.UNSIGNED_SHORT;
         const offset = 0;
-        const vertexCount = 4;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+        gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
     }
+
+    //update-a snúninginn á kassanum
+    cubeRotation += deltaTime;
 }
 
 //
@@ -227,7 +318,3 @@ function loadShader(gl, type, source){
     }
     return shader;
 }
-
-
-
-
