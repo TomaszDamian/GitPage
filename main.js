@@ -1,5 +1,6 @@
+main();
 function main(){
-    const canvas = document.querySelector("#glCanvas");
+    const canvas = document.querySelector("#glcanvas");
     const gl = canvas.getContext("webgl");
     //það sem er verið að gera hér er að initializa webgl virkni á canvasinn
 
@@ -16,22 +17,28 @@ function main(){
     //vs eða vertex shader er notaður í hvert skipti sem eitthvað er teiknað ofan á canvasinn
     //hann tekur original coordið og breytir því yfir í clipspace coordinate sem WebGL notar 
     const vsSource = ` 
-    attribute vec4 aVertexPosition;
+        attribute vec4 aVertexPosition;
+        attribute vec4 aVertexColor;
 
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
+        uniform mat4 uModelViewMatrix;
+        uniform mat4 uProjectionMatrix;
 
-    void main(){
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    }
+        varying lowp vec4 vColor;
+
+        void main(){
+            gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+            vColor = aVertexColor;
+        }
     `;
 
     //fs eða fragment shader tekur hvern pixel fyrir sig og reiknar út hvaða lit hann á að vera.
     //eftir það þá er honum hent aftur í WebGL layerið og sortaður ofan í variable sem heitir gl_FragColor
     const fsSource = `
-    void main(){
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
+        varying lowp vec4 vColor;
+
+        void main(){
+            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
     `
 
     //þetta er til þess að kalla á föllinn og compila öllum shaderum
@@ -42,66 +49,40 @@ function main(){
         program: shaderProgram,
         attribLocations: {
             vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+            vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
         },
-        uniformLocations:{
-            projectMatrix: gl.getUniformLocation(shaderProgram, 'uProjectMatrix'),
+        uniformLocations: {
+            projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
             modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
         },
     };
     //hér er rútínan kölluð á yfir því sem ég er að fara teikna
     const buffers = initBuffers(gl);
 
+        //teikna senu
     drawScene(gl, programInfo, buffers);
-}
-window.onload = main;
-
-//
-//þar að initializa shadera til þess að þeir virki
-//
-function initShaderProgram(gl, vsSource, fsSource){
-    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
-    const shaderProgram = gl.createProgram();
-    gl.attachShader(shaderProgram, vertexShader);
-    gl.attachShader(shaderProgram, fragmentShader);
-    gl.linkProgram(shaderProgram);
-
-    //Búa til shader programið
-    if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)){
-        alert("unable to initialize the shader program: " + gl.getProgramInfoLog(shaderProgram));
-        return null;
-    }
-
-    return shaderProgram;
-}
-
-//
-//búa til shader af ákveðni týpu, uploadar sourcinu og compilar því.
-//
-function loadShader(gl, type, source){
-    //þetta býr til og compilar shaderinn sjálfan og ef eitthvað klikkar þá er sent út villuskilaboð.
-    //annars er shaderinn kominn inn í canvasinn
-    const shader = gl.createShader(type);
-    gl.shaderSource(shader, source);
-    gl.compileShader(shader);
-
-    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
-        alert('An nerror occured during compilation of the shader: ' + gl.getShaderInfoLog(shader));
-        gl.deleteShader(shader);
-        return null;
-    }
-    return shader;
 }
 
 function initBuffers(gl){
     //búa til buffer fyrir kassan sem ég er að fara búa til.
-    const positionBuffer = gl.createBuffer();
+    //þetta að neðan setur mismunandi lit á kassann og bindir hann við buffer.
+    
+    const colors = [
+        1.0,  1.0,  1.0,  1.0,    // hvítur
+        1.0,  0.0,  0.0,  1.0,    // rauður
+        0.0,  1.0,  0.0,  1.0,    // grænn
+        0.0,  0.0,  1.0,  1.0,    // blár
+    ];
+
+    const colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 
     //sett þannig að positionBuffer er það sem bufferinn á að legjast á.
+    const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    //búa til array með púnktum þar sem kassinn á að ver á
+    //búa til array með púnktum þar sem kassinn á að ver á  
     const positions = [
         -1.0,  1.0,
          1.0,  1.0,
@@ -115,6 +96,7 @@ function initBuffers(gl){
 
     return{
         position: positionBuffer,
+        color: colorBuffer,
     };
 }
 
@@ -168,7 +150,24 @@ function drawScene(gl, programInfo, buffers){
         );
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
     }
-
+    //þetta segir webgl hvernig það á að ná í litina sem voru setting á pixlana inn í initbuffer
+    {
+        const numComponents = 4;
+        const type = gl.FLOAT;
+        const normalize = false;
+        const stride = 0;
+        const offset = 0;
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        gl.vertexAttribPointer(
+            programInfo.attribLocations.vertexColor,
+            numComponents,
+            type,
+            normalize,
+            stride,
+            offset);
+        gl.enableVertexAttribArray(
+            programInfo.attribLocations.vertexColor);
+    }
     //segir webgl að nota programið þegar það er að teikna.
     gl.useProgram(programInfo.program);
 
@@ -189,4 +188,46 @@ function drawScene(gl, programInfo, buffers){
         gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
     }
 }
+
+//
+//þar að initializa shadera til þess að þeir virki
+//
+function initShaderProgram(gl, vsSource, fsSource){
+    const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+
+    const shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    //Búa til shader programið
+    if(!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)){
+        alert("unable to initialize the shader program: " + gl.getProgramInfoLog(shaderProgram));
+        return null;
+    }
+
+    return shaderProgram;
+}
+
+//
+//búa til shader af ákveðni týpu, uploadar sourcinu og compilar því.
+//
+function loadShader(gl, type, source){
+    //þetta býr til og compilar shaderinn sjálfan og ef eitthvað klikkar þá er sent út villuskilaboð.
+    //annars er shaderinn kominn inn í canvasinn
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if(!gl.getShaderParameter(shader, gl.COMPILE_STATUS)){
+        alert('An nerror occured during compilation of the shader: ' + gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+    }
+    return shader;
+}
+
+
+
 
