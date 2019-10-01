@@ -31,7 +31,6 @@ var geometry = new THREE.TorusBufferGeometry( 15, 3, 16, 100 );
 var material = new THREE.MeshLambertMaterial( { color: 0xffff00 } );
 var torus = new THREE.Mesh( geometry, material );
 torus.rotation.x += 6;
-console.log(torus.rotation);
 
 //light
 var spotlight = new THREE.SpotLight(0xffffff)
